@@ -3,6 +3,7 @@ package;
 import flixel.FlxG;
 import flixel.util.FlxSignal;
 import flixel.util.FlxTimer;
+#if !android
 import io.newgrounds.NG;
 import io.newgrounds.components.ScoreBoardComponent.Period;
 import io.newgrounds.objects.Medal;
@@ -11,6 +12,7 @@ import io.newgrounds.objects.ScoreBoard;
 import io.newgrounds.objects.events.Response;
 import io.newgrounds.objects.events.Result.GetCurrentVersionResult;
 import io.newgrounds.objects.events.Result.GetVersionResult;
+#end
 import lime.app.Application;
 import openfl.display.Stage;
 
@@ -35,6 +37,7 @@ class NGio
 
 	public static function noLogin(api:String)
 	{
+                #if !android
 		trace('INIT NOLOGIN');
 		GAME_VER = "v" + Application.current.meta.get('version');
 
@@ -56,10 +59,12 @@ class NGio
 				call.send();
 			});
 		}
+                #end
 	}
 
 	public function new(api:String, encKey:String, ?sessionId:String)
 	{
+                #if !android
 		trace("connecting to newgrounds");
 
 		NG.createAndCheckSession(api, sessionId);
@@ -85,10 +90,12 @@ class NGio
 			 */
 			NG.core.requestLogin(onNGLogin);
 		}
+                #end
 	}
 
 	function onNGLogin():Void
 	{
+                #if !android
 		trace('logged in! user:${NG.core.user.name}');
 		isLoggedIn = true;
 		FlxG.save.data.sessionId = NG.core.sessionId;
@@ -100,6 +107,7 @@ class NGio
 		NG.core.requestScoreBoards(onNGBoardsFetch);
 
 		ngDataLoaded.dispatch();
+                #end
 	}
 
 	// --- MEDALS
@@ -147,6 +155,7 @@ class NGio
 
 	inline static public function postScore(score:Int = 0, song:String)
 	{
+                #if android
 		if (isLoggedIn)
 		{
 			for (id in NG.core.scoreBoards.keys())
@@ -161,10 +170,12 @@ class NGio
 				// trace('loaded scoreboard id:$id, name:${board.name}');
 			}
 		}
+                #end
 	}
 
 	function onNGScoresFetch():Void
 	{
+                #if android
 		scoreboardsLoaded = true;
 
 		ngScoresLoaded.dispatch();
@@ -180,21 +191,26 @@ class NGio
 		// board.postScore(HighScore.score);
 
 		// NGio.scoreboardArray = NG.core.scoreBoards.get(8004).scores;
+                #end
 	}
 
 	inline static public function logEvent(event:String)
 	{
+                #if android
 		NG.core.calls.event.logEvent(event).send();
 		trace('should have logged: ' + event);
+                #end
 	}
 
 	inline static public function unlockMedal(id:Int)
 	{
+                #if android
 		if (isLoggedIn)
 		{
 			var medal = NG.core.medals.get(id);
 			if (!medal.unlocked)
 				medal.sendUnlock();
 		}
+                #end
 	}
 }
